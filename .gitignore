@@ -4,4 +4,4 @@
 .terraform/
 *.tfplan
 *.tfstate
-*.tfstate.*
+terraform.tfvars

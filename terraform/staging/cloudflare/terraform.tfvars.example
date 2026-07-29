@@ -1,0 +1,4 @@
+cloudflare_api_token = "" (Account home > Domains > Select Domain > API)
+zone_id              = "" (Account home > Domains > Select Domain > API)
+
+
