@@ -18,8 +18,10 @@ services:
     image: postgres:18-alpine
     container_name: keto-granola-db
     restart: unless-stopped
+    env_file:
+      - .env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
