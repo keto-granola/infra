@@ -9,12 +9,12 @@ terraform {
 }
 
 provider "aws" {
-  region  = "eu-west-2"
+  region  = "ap-southeast-2"
   profile = "keto-granola-terraform-setup-staging"
 }
 
 resource "aws_s3_bucket" "tf_state" {
-  bucket = "keto-granola-staging-tfstate"
+  bucket = "keto-granola-staging-tfstate-v1"
 }
 
 resource "aws_s3_bucket_versioning" "tf_state" {
@@ -55,7 +55,7 @@ resource "aws_iam_user_policy" "cloudflare_staging_state_access" {
     Statement = [
       {
         Effect   = "Allow"
-        Action   = ["s3:GetObject", "s3:PutObject", "s3:ListBucket"]
+        Action   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
         Resource = [
           aws_s3_bucket.tf_state.arn,
           "${aws_s3_bucket.tf_state.arn}/cloudflare/*"
