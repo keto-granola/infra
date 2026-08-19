@@ -1,0 +1,33 @@
+services:
+  keto-granola-app:
+    image: marie20767/keto-granola:latest
+    container_name: keto-granola-app
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${SERVER_PORT}/api/v1/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+  postgres:
+    image: postgres:18-alpine
+    container_name: keto-granola-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    name: keto_granola_postgres_data
