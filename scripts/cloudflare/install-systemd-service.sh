@@ -11,7 +11,7 @@ install_systemd_service() {
     install_dir="$(dirname "$SCRIPT_PATH")"
 
     echo "Installing firewall configuration files to $install_dir..."
-    sudo install -m 0755 "$SCRIPT_DIR/update-cf-firewall.sh" "$SCRIPT_PATH"
+    sudo install -m 0755 "$SCRIPT_DIR/update-firewall.sh" "$SCRIPT_PATH"
     sudo install -m 0644 "$SCRIPT_DIR/configure-ipv4.sh" "$install_dir/configure-ipv4.sh"
     sudo install -m 0644 "$SCRIPT_DIR/configure-ipv6.sh" "$install_dir/configure-ipv6.sh"
     sudo install -m 0644 "$SCRIPT_DIR/configure-ufw.sh" "$install_dir/configure-ufw.sh"
