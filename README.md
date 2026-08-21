@@ -101,3 +101,17 @@ cd terraform/dev|staging|prod/<provider>
 terraform apply
 ```
 
+## Cloudflare Proxy
+
+Once a domain is switched to proxied (`proxied = true` in `dns.tf`), the droplet's firewall must be restricted to only accept traffic from Cloudflare's edge.
+
+### Restrict droplet firewall to Cloudflare IPs
+
+Run once per droplet after flipping to proxied, and periodically afterward to pick up any changes to Cloudflare's published IP ranges:
+
+```bash
+./scripts/update-cf-firewall.sh
+```
+
+This fetches Cloudflare's current IPv4/IPv6 ranges and updates `ufw` to only allow inbound 80/443 from those ranges. Safe to re-run.
+
