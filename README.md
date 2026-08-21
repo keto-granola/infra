@@ -115,3 +115,17 @@ Run once per droplet after flipping to proxied, and periodically afterward to pi
 
 This fetches Cloudflare's current IPv4/IPv6 ranges and updates `ufw` to only allow inbound 80/443 from those ranges. Safe to re-run.
 
+### Verify setup
+
+From another terminal, run:
+
+```bash
+curl -I --max-time 5 http://<droplet_ip>
+```
+
+Should time out or be refused. Meanwhile the domain should still work normally through Cloudflare:
+
+```bash
+curl -I https://<domain>
+```
+
