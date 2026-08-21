@@ -27,7 +27,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - app
+      - keto-granola-app
     restart: unless-stopped
 
   postgres:
