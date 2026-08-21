@@ -2,8 +2,8 @@ services:
   keto-granola-app:
     image: marie20767/keto-granola:latest
     container_name: keto-granola-app
-    ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"
+    expose:
+      - "${SERVER_PORT}"
     restart: unless-stopped
     env_file:
       - .env
@@ -16,6 +16,20 @@ services:
       timeout: 3s
       retries: 10
       start_period: 10s
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+    restart: unless-stopped
+
   postgres:
     image: postgres:18-alpine
     container_name: keto-granola-db
@@ -31,5 +45,9 @@ services:
       retries: 5
 
 volumes:
+  caddy_data:
+    name: keto_granola_caddy_data
+  caddy_config:
+    name: keto_granola_caddy_config
   postgres_data:
     name: keto_granola_postgres_data
