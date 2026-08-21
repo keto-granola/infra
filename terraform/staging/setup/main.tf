@@ -14,7 +14,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "tf_state" {
-  bucket = "keto-granola-staging-tfstate-v1"
+  bucket = "keto-granola-tfstate-staging"
 }
 
 resource "aws_s3_bucket_versioning" "tf_state" {
@@ -43,7 +43,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "tf_state" {
 
 # ---- Scoped IAM user for Cloudflare ----
 resource "aws_iam_user" "cloudflare_staging" {
-  name = "keto-granola-staging-cloudflare"
+  name = "keto-granola-cloudflare-staging"
 }
 
 resource "aws_iam_user_policy" "cloudflare_staging_state_access" {

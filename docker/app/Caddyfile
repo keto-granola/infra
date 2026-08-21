@@ -1,0 +1,3 @@
+keto-granola-staging.store {
+    reverse_proxy keto-granola-app:{$SEVER_PORT}
+}
