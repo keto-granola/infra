@@ -118,17 +118,9 @@ This will:
 - Configure UFW to deny inbound traffic by default while allowing SSH on port 22.
 - Fetch Cloudflare's current IPv4 and IPv6 ranges.
 - Configure Docker's DOCKER-USER chain to allow ports 80/443 only from Cloudflare's IP ranges.
-- Install a systemd service that automatically re-applies the Docker firewall rules whenever Docker starts or restarts, including after a droplet reboot.
-
-The script is safe to re-run.
-
-### Manually refresh Cloudflare IP ranges
-
-The firewall rules are automatically refreshed when Docker starts or restarts. To refresh them immediately without restarting Docker, run:
-
-```bash
-./scripts/firewall/update-firewall.sh
-```
+- Install a systemd service that automatically re-applies the Docker firewall rules:
+  - daily and/or
+  - whenever Docker restarts
 
 ### Verify setup
 
