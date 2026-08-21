@@ -1,8 +1,9 @@
 terraform {
   backend "s3" {
-    bucket = "keto-granola-staging-tfstate-v1"
+    bucket = "keto-granola-tfstate-staging"
     key    = "cloudflare/state.tfstate"
     region = "ap-southeast-2"
+    profile = "keto-granola-cloudflare-staging"
   }
 
   required_providers {

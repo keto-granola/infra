@@ -28,7 +28,7 @@
         "s3:GetBucketOwnershipControls",
         "s3:GetBucketTagging"
       ],
-      "Resource": "arn:aws:s3:::keto-granola-staging-tfstate-v1"
+      "Resource": "arn:aws:s3:::keto-granola-tfstate-staging"
     },
     {
       "Sid": "StagingCloudflareUserManagement",
@@ -44,7 +44,7 @@
         "iam:DeleteAccessKey",
         "iam:ListAccessKeys"
       ],
-      "Resource": "arn:aws:iam::*:user/keto-granola-staging-cloudflare"
+      "Resource": "arn:aws:iam::*:user/keto-granola-cloudflare-staging"
     }
   ]
 }
