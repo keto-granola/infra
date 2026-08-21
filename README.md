@@ -107,17 +107,17 @@ Once a domain is switched to proxied (`proxied = true` in `dns.tf`), the droplet
 
 ### Restrict droplet firewall to Cloudflare IPs
 
-Run once per droplet after flipping to proxied, and periodically afterward to pick up any changes to Cloudflare's published IP ranges:
+Run once per droplet after flipping to proxied:
 
 ```bash
 ./scripts/update-cf-firewall.sh
 ```
 
-This fetches Cloudflare's current IPv4/IPv6 ranges and updates `ufw` to only allow inbound 80/443 from those ranges. Safe to re-run.
+This fetches Cloudflare's current IPv4/IPv6 ranges and updates `ufw` to only allow inbound 80/443 from those ranges. The script is safe to re-run and it runs automatically on every Docker start or droplet reboot.
 
 ### Verify setup
 
-From another terminal, run:
+1. From another terminal, run:
 
 ```bash
 curl -I --max-time 5 http://<droplet_ip>
@@ -127,5 +127,21 @@ Should time out or be refused. Meanwhile the domain should still work normally t
 
 ```bash
 curl -I https://<domain>
+```
+
+2. To inspect the active rules directly on the droplet:
+
+```bash
+sudo iptables -L DOCKER-USER -n --line-numbers
+sudo iptables -L CLOUDFLARE-ONLY -n --line-numbers
+sudo ufw status verbose
+```
+
+DOCKER-USER must show a jump into CLOUDFLARE-ONLY at position 1.
+
+3. To confirm the systemd service is enabled and will re-run on boot:
+
+```bash
+sudo systemctl status cloudflare-docker-firewall.service
 ```
 
