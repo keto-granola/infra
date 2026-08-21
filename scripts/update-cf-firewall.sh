@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
+
 # Restricts inbound 80/443 to Cloudflare's current IP ranges.
 #
 # NOTE: ufw alone is NOT sufficient here. Docker manipulates iptables directly
 # for published ports (-p 80:80 / -p 443:443), inserting rules that bypass
-# ufw's own chain. The DOCKER-USER chain is the one guaranteed to run before
-# Docker's port-publishing rules, so that's what we filter on instead.
-# ufw is still used for SSH (22), which Docker does not touch.
-
+# ufw's own chain.
 set -euo pipefail
 
 echo "Fetching current Cloudflare IP ranges..."
@@ -37,6 +35,13 @@ sudo ip6tables -A DOCKER-USER -p tcp -m multiport --dports 80,443 -j DROP -m com
 
 echo "Ensuring SSH stays allowed via ufw..."
 sudo ufw allow 22/tcp >/dev/null
+
+echo "Setting ufw default policy (deny incoming, allow outgoing)..."
+sudo ufw default deny incoming >/dev/null
+sudo ufw default allow outgoing >/dev/null
+
+echo "Enabling ufw (non-interactive)..."
+sudo ufw --force enable >/dev/null
 
 echo "Persisting rules across reboots..."
 if ! dpkg -s iptables-persistent >/dev/null 2>&1; then
