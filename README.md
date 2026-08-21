@@ -64,7 +64,7 @@ Reactivate (--status Active) only when you need to do another admin-level task.
 This is a one-time setup that creates the S3 bucket storing the Terraform state and scoped IAM users.
 You should only need to re-run anything in this directory if you want to change the bucket setup or IAM permissions themselves.
 
-1. Run:
+**1. Run:**
 
 ```bash
 cd terraform/dev|staging|prod/setup
@@ -72,7 +72,7 @@ terraform init
 terraform apply
 ```
 
-2. Save the generated credentials locally into a named AWS profile:
+**2. Save the generated credentials locally into a named AWS profile:**
 
 `<provider_name>` follows the convention `keto-granola-<provider>-<environment>`.
 
@@ -132,7 +132,7 @@ The daily refresh timer runs once after boot and then every 24 hours.
 
 ### Verify setup
 
-1. From another terminal, run:
+**1. From another terminal, run:**
 
 ```bash
 curl -I --max-time 5 http://<droplet_ip>
@@ -144,7 +144,7 @@ Should time out or be refused. Meanwhile the domain should still work normally t
 curl -I https://<domain>
 ```
 
-2. Inspect the active Docker firewall rules directly on the droplet:
+**2. Inspect the active Docker firewall rules directly on the droplet:**
 
 ```bash
 sudo iptables -L DOCKER-USER -n --line-numbers
@@ -157,7 +157,7 @@ sudo ufw status verbose
 `DOCKER-USER` should show a jump to `CLOUDFLARE-ONLY` at position 1.
 UFW should only expose SSH on port 22.
 
-3. Confirm the main firewall service is installed and active:
+**3. Confirm the main firewall service is installed and active:**
 
 ```bash
 sudo systemctl status cloudflare-docker-firewall.service --no-pager
@@ -165,7 +165,7 @@ sudo systemctl status cloudflare-docker-firewall.service --no-pager
 
 The service should show: `active (exited)`
 
-4. Confirm the refresh service exists:
+**4. Confirm the refresh service exists:**
 
 ```bash
 sudo systemctl status cloudflare-docker-firewall-refresh.service --no-pager
@@ -184,7 +184,19 @@ Then check its status:
 sudo systemctl status cloudflare-docker-firewall-refresh.service --no-pager
 ```
 
-5. Confirm the daily refresh timer is enabled and running:
+****5. Enable the daily refresh timer:****
+
+```bash
+sudo systemctl enable --now cloudflare-docker-firewall-refresh.timer
+```
+
+**6. Confirm the daily refresh timer is enabled and running:**
+
+```bash
+sudo systemctl is-enabled cloudflare-docker-firewall-refresh.timer
+```
+
+The timer should show: `enabled`
 
 ```bash
 sudo systemctl status cloudflare-docker-firewall-refresh.timer --no-pager
@@ -192,15 +204,7 @@ sudo systemctl status cloudflare-docker-firewall-refresh.timer --no-pager
 
 The timer should show: `active (waiting)`
 
-Also confirm it's enabled:
-
-```bash
-sudo systemctl is-enabled cloudflare-docker-firewall-refresh.timer
-```
-
-Expected output: `enabled`
-
-6. Confirm the timer has a scheduled next execution:
+**7. Confirm the timer has a scheduled next execution:**
 
 ```bash
 sudo systemctl list-timers cloudflare-docker-firewall-refresh.timer
