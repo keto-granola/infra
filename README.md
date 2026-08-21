@@ -110,7 +110,7 @@ Once a domain is switched to proxied (`proxied = true` in `dns.tf`), the droplet
 Run once per droplet after flipping to proxied:
 
 ```bash
-./scripts/update-cf-firewall.sh
+./scripts/cloudflare/update-firewall.sh
 ```
 
 This fetches Cloudflare's current IPv4/IPv6 ranges and updates `ufw` to only allow inbound 80/443 from those ranges. The script is safe to re-run and it runs automatically on every Docker start or droplet reboot.
