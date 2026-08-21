@@ -105,6 +105,25 @@ terraform apply
 
 Once a domain is switched to proxied (`proxied = true` in `dns.tf`), the droplet's firewall must be restricted to only accept traffic from Cloudflare's edge.
 
+### Prerequisites (one-time per droplet)
+
+Before running the script `update-cf-firewall` script below for the first time, make sure SSH stays reachable once the firewall is enabled:
+
+```bash
+sudo ufw allow 22/tcp
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw enable
+```
+
+Confirm SSH is allowed and the default policy is deny before continuing:
+
+```bash
+sudo ufw status verbose
+```
+
+Should show `22/tcp ALLOW Anywhere` and `Default: deny (incoming)`. Test SSH from a **second terminal** before closing your current session.
+
 ### Restrict droplet firewall to Cloudflare IPs
 
 Run once per droplet after flipping to proxied, and periodically afterward to pick up any changes to Cloudflare's published IP ranges:
@@ -114,4 +133,18 @@ Run once per droplet after flipping to proxied, and periodically afterward to pi
 ```
 
 This fetches Cloudflare's current IPv4/IPv6 ranges and updates `ufw` to only allow inbound 80/443 from those ranges. Safe to re-run.
+
+### Verify setup
+
+From another terminal, run:
+
+```bash
+curl -I --max-time 5 http://<droplet_ip>
+```
+
+Should time out or be refused. Meanwhile the domain should still work normally through Cloudflare:
+
+```bash
+curl -I https://<domain>
+```
 
