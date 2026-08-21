@@ -8,7 +8,8 @@ CHAIN="CLOUDFLARE-ONLY"
 SCRIPT_PATH="/usr/local/sbin/configure-cloudflare-firewall"
 SYSTEMD_SERVICE_PATH="/etc/systemd/system/cloudflare-docker-firewall.service"
 
-SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+SELF_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(cd "$(dirname "$SELF_PATH")" && pwd)"
 
 source "$SCRIPT_DIR/configure-ipv4.sh"
 source "$SCRIPT_DIR/configure-ipv6.sh"
@@ -30,9 +31,9 @@ configure_ipv6
 
 configure_ufw
 
-install_systemd_service
+install_systemd_service "$SELF_PATH"
 
-# --- Print Status ---
+# --- Print status ---
 
 echo
 echo "IPv4 DOCKER-USER:"

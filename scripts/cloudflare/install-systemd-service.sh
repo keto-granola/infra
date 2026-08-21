@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 #
-# Registers a systemd service tied to docker.service so the whole script re-runs on every Docker
+# Copies this script's sibling files to a stable path and registers a
+# systemd service tied to docker.service so the script re-runs automatically on every Docker
 # start or droplet reboot.
 #
 # Requires SCRIPT_DIR, SCRIPT_PATH, and SYSTEMD_SERVICE_PATH to already be
 # set by the caller.
 
 install_systemd_service() {
+    local entrypoint="$1"
     local install_dir
     install_dir="$(dirname "$SCRIPT_PATH")"
 
     echo "Installing firewall configuration files to $install_dir..."
-    sudo install -m 0755 "$SCRIPT_DIR/update-firewall.sh" "$SCRIPT_PATH"
+    sudo install -m 0755 "$entrypoint" "$SCRIPT_PATH"
     sudo install -m 0644 "$SCRIPT_DIR/configure-ipv4.sh" "$install_dir/configure-ipv4.sh"
     sudo install -m 0644 "$SCRIPT_DIR/configure-ipv6.sh" "$install_dir/configure-ipv6.sh"
     sudo install -m 0644 "$SCRIPT_DIR/configure-ufw.sh" "$install_dir/configure-ufw.sh"
