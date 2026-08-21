@@ -3,6 +3,6 @@ resource "cloudflare_record" "root" {
   name    = "@"
   type    = "A"
   content = var.digital_ocean_droplet_ip
-  proxied = false
+  proxied = true
   ttl     = 1
 }

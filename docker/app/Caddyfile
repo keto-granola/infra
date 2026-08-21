@@ -1,3 +1,5 @@
 keto-granola-staging.store {
-    reverse_proxy keto-granola-app:{$SEVER_PORT}
+    reverse_proxy keto-granola-app:{$SEVER_PORT} {
+        header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+    }
 }
