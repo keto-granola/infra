@@ -103,17 +103,32 @@ terraform apply
 
 ## Cloudflare Proxy
 
-Once a domain is switched to proxied (`proxied = true` in `dns.tf`), the droplet's firewall must be restricted to only accept traffic from Cloudflare's edge.
+Once a domain is switched to proxied (`proxied = true` in `dns.tf`), the droplet's firewall must be restricted to only accept HTTPS/HTTP traffic from Cloudflare's edge.
 
 ### Restrict droplet firewall to Cloudflare IPs
 
-Run once per droplet after flipping to proxied:
+Run once per droplet after flipping the domain to proxied:
 
 ```bash
-./scripts/cloudflare/update-firewall.sh
+./scripts/firewall/install-firewall.sh
 ```
 
-This fetches Cloudflare's current IPv4/IPv6 ranges and updates `ufw` to only allow inbound 80/443 from those ranges. The script is safe to re-run and it runs automatically on every Docker start or droplet reboot.
+This will:
+
+- Configure UFW to deny inbound traffic by default while allowing SSH on port 22.
+- Fetch Cloudflare's current IPv4 and IPv6 ranges.
+- Configure Docker's DOCKER-USER chain to allow ports 80/443 only from Cloudflare's IP ranges.
+- Install a systemd service that automatically re-applies the Docker firewall rules whenever Docker starts or restarts, including after a droplet reboot.
+
+The script is safe to re-run.
+
+### Manually refresh Cloudflare IP ranges
+
+The firewall rules are automatically refreshed when Docker starts or restarts. To refresh them immediately without restarting Docker, run:
+
+```bash
+./scripts/firewall/update-firewall.sh
+```
 
 ### Verify setup
 
@@ -129,17 +144,19 @@ Should time out or be refused. Meanwhile the domain should still work normally t
 curl -I https://<domain>
 ```
 
-2. To inspect the active rules directly on the droplet:
+2. Inspect the active Docker firewall rules directly on the Droplet:
 
 ```bash
 sudo iptables -L DOCKER-USER -n --line-numbers
 sudo iptables -L CLOUDFLARE-ONLY -n --line-numbers
+sudo ip6tables -L DOCKER-USER -n --line-numbers
+sudo ip6tables -L CLOUDFLARE-ONLY -n --line-numbers
 sudo ufw status verbose
 ```
 
-DOCKER-USER must show a jump into CLOUDFLARE-ONLY at position 1.
+`DOCKER-USER` should show a jump to `CLOUDFLARE-ONLY` at position 1. UFW should only expose SSH on port 22.
 
-3. To confirm the systemd service is enabled and will re-run on boot:
+3. Confirm the systemd service is enabled and running:
 
 ```bash
 sudo systemctl status cloudflare-docker-firewall.service
