@@ -62,7 +62,7 @@ Type=oneshot
 ExecStart=/usr/local/sbin/configure-firewall
 EOF
 
-sudo tee "{SERVICE_DIR}/cloudflare-docker-firewall-refresh.timer" >/dev/null <<EOF
+sudo tee "${SERVICE_DIR}/cloudflare-docker-firewall-refresh.timer" >/dev/null <<EOF
 [Unit]
 Description=Daily refresh of Cloudflare Docker firewall rules
 

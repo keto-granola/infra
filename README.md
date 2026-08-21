@@ -117,10 +117,18 @@ This will:
 
 - Configure UFW to deny inbound traffic by default while allowing SSH on port 22.
 - Fetch Cloudflare's current IPv4 and IPv6 ranges.
-- Configure Docker's DOCKER-USER chain to allow ports 80/443 only from Cloudflare's IP ranges.
-- Install a systemd service that automatically re-applies the Docker firewall rules:
-  - daily and/or
-  - whenever Docker restarts
+- Configure Docker's `DOCKER-USER` chain to allow ports 80/443 only from Cloudflare's IP ranges.
+- Install a systemd service that applies the Docker firewall rules when Docker starts/restarts.
+- Install a separate systemd service and timer to refresh the Cloudflare IP addresses daily.
+
+The systemd units created by the installer are:
+```
+/etc/systemd/system/cloudflare-docker-firewall.service
+/etc/systemd/system/cloudflare-docker-firewall-refresh.service
+/etc/systemd/system/cloudflare-docker-firewall-refresh.timer
+```
+
+The daily refresh timer runs once after boot and then every 24 hours.
 
 ### Verify setup
 
@@ -136,7 +144,7 @@ Should time out or be refused. Meanwhile the domain should still work normally t
 curl -I https://<domain>
 ```
 
-2. Inspect the active Docker firewall rules directly on the Droplet:
+2. Inspect the active Docker firewall rules directly on the droplet:
 
 ```bash
 sudo iptables -L DOCKER-USER -n --line-numbers
@@ -146,11 +154,57 @@ sudo ip6tables -L CLOUDFLARE-ONLY -n --line-numbers
 sudo ufw status verbose
 ```
 
-`DOCKER-USER` should show a jump to `CLOUDFLARE-ONLY` at position 1. UFW should only expose SSH on port 22.
+`DOCKER-USER` should show a jump to `CLOUDFLARE-ONLY` at position 1.
+UFW should only expose SSH on port 22.
 
-3. Confirm the systemd service is enabled and running:
+3. Confirm the main firewall service is installed and active:
 
 ```bash
-sudo systemctl status cloudflare-docker-firewall.service
+sudo systemctl status cloudflare-docker-firewall.service --no-pager
 ```
+
+The service should show: `active (exited)`
+
+4. Confirm the refresh service exists:
+
+```bash
+sudo systemctl status cloudflare-docker-firewall-refresh.service --no-pager
+```
+
+The refresh service is a oneshot service, so it will normally show as `inactive (dead)` when it is not currently executing.
+
+You can manually run it to verify that the Cloudflare rules can be refreshed:
+
+```bash
+sudo systemctl start cloudflare-docker-firewall-refresh.service
+```
+
+Then check its status:
+```bash
+sudo systemctl status cloudflare-docker-firewall-refresh.service --no-pager
+```
+
+5. Confirm the daily refresh timer is enabled and running:
+
+```bash
+sudo systemctl status cloudflare-docker-firewall-refresh.timer --no-pager
+```
+
+The timer should show: `active (waiting)`
+
+Also confirm it's enabled:
+
+```bash
+sudo systemctl is-enabled cloudflare-docker-firewall-refresh.timer
+```
+
+Expected output: `enabled`
+
+6. Confirm the timer has a scheduled next execution:
+
+```bash
+sudo systemctl list-timers cloudflare-docker-firewall-refresh.timer
+```
+
+The timer should appear in the output with a future next execution time.
 
