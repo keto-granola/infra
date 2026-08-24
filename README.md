@@ -5,7 +5,7 @@ Infrastructure for Keto Granola e-commerce platform, including:
 - Running services in docker
 - Provisioning with terraform
 
-## Running services
+## Run services (with Docker)
 
 Run:
 ```
@@ -101,9 +101,12 @@ cd terraform/dev|staging|prod/<provider>
 terraform apply
 ```
 
-## Cloudflare Proxy
+## Cloudflare Proxy (for externally facing services only)
 
-Once a domain is switched to proxied (`proxied = true` in `dns.tf`), the droplet's firewall must be restricted to only accept HTTPS/HTTP traffic from Cloudflare's edge.
+### Preqrequisites
+
+- Service is running on Docker.
+- The domain has been switched to proxied (`proxied = true` in `cloudflare.tf`).
 
 ### Restrict droplet firewall to Cloudflare IPs
 
@@ -173,17 +176,6 @@ sudo systemctl status cloudflare-docker-firewall-refresh.service --no-pager
 
 The refresh service is a oneshot service, so it will normally show as `inactive (dead)` when it is not currently executing.
 
-You can manually run it to verify that the Cloudflare rules can be refreshed:
-
-```bash
-sudo systemctl start cloudflare-docker-firewall-refresh.service
-```
-
-Then check its status:
-```bash
-sudo systemctl status cloudflare-docker-firewall-refresh.service --no-pager
-```
-
 ****5. Enable the daily refresh timer:****
 
 ```bash
@@ -211,4 +203,14 @@ sudo systemctl list-timers cloudflare-docker-firewall-refresh.timer
 ```
 
 The timer should appear in the output with a future next execution time.
+
+**8. Verify the firewall is reapplied after a Docker restart:**
+
+```bash
+sudo systemctl restart docker
+sleep 5
+sudo systemctl status cloudflare-docker-firewall.service --no-pager
+```
+
+The service should show: `active (exited)`
 
