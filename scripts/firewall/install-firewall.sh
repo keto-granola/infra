@@ -62,33 +62,27 @@ Type=oneshot
 ExecStart=/usr/local/sbin/configure-firewall
 EOF
 
-sudo tee "${SERVICE_DIR}/cloudflare-docker-firewall-refresh.timer" >/dev/null <<EOF
+sudo tee "${SERVICE_DIR}/cloudflare-docker-firewall-refresh.timer" >/dev/null <<'EOF'
 [Unit]
 Description=Daily refresh of Cloudflare Docker firewall rules
 
 [Timer]
-OnBootSec=10min
-OnUnitActiveSec=24h
+OnCalendar=daily
+RandomizedDelaySec=10min
 Persistent=true
 
 [Install]
 WantedBy=timers.target
 EOF
 
-
 echo "Reloading systemd..."
 
 sudo systemctl daemon-reload
 
 
-echo "Applying firewall configuration now..."
+echo "Enabling and starting firewall service..."
 
-sudo "$CONFIGURE_SCRIPT"
-
-
-echo "Enabling firewall service..."
-
-sudo systemctl enable cloudflare-docker-firewall.service
+sudo systemctl enable --now cloudflare-docker-firewall.service
 
 
 echo
