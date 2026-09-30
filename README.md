@@ -110,7 +110,7 @@ terraform apply
 
 ### Restrict droplet firewall to Cloudflare IPs
 
-Run once per droplet after flipping the domain to proxied:
+Docker bypasses UFW's normal rules for published container ports, so each droplet needs the following script run to restrict traffic to Cloudflare's IP ranges only:
 
 ```bash
 ./scripts/firewall/install-firewall.sh
